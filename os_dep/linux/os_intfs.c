@@ -4427,13 +4427,16 @@ static int netdev_close(struct net_device *pnetdev)
 #ifndef CONFIG_RTW_ANDROID
 		/* s2. */
 		LeaveAllPowerSaveMode(padapter);
-		rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
-		/* s2-2.  indicate disconnect to os */
-		rtw_indicate_disconnect(padapter, 0, _FALSE);
-		/* s2-3. */
-		rtw_free_assoc_resources_cmd(padapter, _TRUE, RTW_CMDF_WAIT_ACK);
-		/* s2-4. */
-		rtw_free_network_queue(padapter, _TRUE);
+		// reference: https://github.com/morrownr/rtl8852bu/blame/1.19.3/os_dep/linux/os_intfs.c#L2504
+		if (check_fwstate(pmlmepriv, WIFI_ASOC_STATE)) {
+			rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
+			/* s2-2.  indicate disconnect to os */
+			rtw_indicate_disconnect(padapter, 0, _FALSE);
+			/* s2-3. */
+			rtw_free_assoc_resources_cmd(padapter, _TRUE, RTW_CMDF_WAIT_ACK);
+			/* s2-4. */
+			rtw_free_network_queue(padapter, _TRUE);
+		}
 #endif
 	}
 
