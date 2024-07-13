@@ -4428,7 +4428,9 @@ static int netdev_close(struct net_device *pnetdev)
 		/* s2. */
 		LeaveAllPowerSaveMode(padapter);
 		// reference: https://github.com/morrownr/rtl8852bu/blame/1.19.3/os_dep/linux/os_intfs.c#L2504
-		if (check_fwstate(pmlmepriv, WIFI_ASOC_STATE)) {
+		// update: if packet injection is enabled, rtw_indicate_connect is call, which add the WIFI_ASOC_STATE, so ignore this case here.
+		if (check_fwstate(pmlmepriv, WIFI_ASOC_STATE) == _TRUE
+		    && check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _FALSE) {
 			rtw_disassoc_cmd(padapter, 500, RTW_CMDF_WAIT_ACK);
 			/* s2-2.  indicate disconnect to os */
 			rtw_indicate_disconnect(padapter, 0, _FALSE);
